@@ -13,36 +13,28 @@ const Register = () => {
     phone: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    setMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/register", {
+     const res = await fetch("http://localhost:5000/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
-      const data = await res.json();
       if(res.ok){
+        alert("registration successfully..!")
         navigate("/login");
-        setMessage(" Registration successful! Redirecting...");
-      } 
+
+      }
+
+      
     } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+      console.error("Registration failed", err);
     }
   };
 
@@ -63,7 +55,7 @@ const Register = () => {
           className="hidden md:flex flex-col justify-center px-12 bg-gradient-to-br from-blue-600 to-purple-700 text-white relative"
         >
           <h1 className="text-5xl font-extrabold leading-tight">
-            Join Us Today 
+            Join Us Today
           </h1>
 
           <p className="mt-4 text-lg opacity-90">
@@ -77,7 +69,7 @@ const Register = () => {
           />
         </motion.div>
 
-        
+      
         <motion.div
           initial={{ x: 120, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -87,41 +79,55 @@ const Register = () => {
           <h2 className="text-4xl font-bold text-gray-800">Create Account</h2>
           <p className="text-gray-500 mt-2 mb-6">Sign up to get started</p>
 
-          {message && (
-            <p className="mb-4 text-green-600 text-sm font-semibold">{message}</p>
-          )}
-          {error && (
-            <p className="mb-4 text-red-600 text-sm font-semibold">{error}</p>
-          )}
-
-        
           <form onSubmit={handleSubmit} className="space-y-5">
 
-           
-            <Input icon={<FaUser />} name="name" value={formData.name} onChange={handleChange} placeholder="Full Name" />
+            <Input
+              icon={<FaUser />}
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Full Name"
+            />
 
-           
-            <Input icon={<FaEnvelope />} name="email" value={formData.email} onChange={handleChange} placeholder="Email Address" type="email" />
+            <Input
+              icon={<FaEnvelope />}
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email Address"
+              type="email"
+            />
 
-           
             <div>
-              <Input icon={<FaLock />} name="password" value={formData.password} onChange={handleChange} placeholder="Password" type="password" />
+              <Input
+                icon={<FaLock />}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Password"
+                type="password"
+              />
               <p className="text-xs text-gray-400 mt-1">
                 Minimum 8 characters
               </p>
             </div>
 
-           
-            <Input icon={<FaPhone />} name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone Number" type="tel" />
+            <Input
+              icon={<FaPhone />}
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Phone Number"
+              type="tel"
+            />
 
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition disabled:opacity-60"
+              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition"
             >
-              {loading ? "Creating Account..." : "Create Account"}
+              Create Account
             </motion.button>
 
             <p className="text-center text-gray-500 text-sm mt-6">
@@ -139,7 +145,6 @@ const Register = () => {
     </div>
   );
 };
-
 
 const Input = ({ icon, ...props }) => (
   <div className="relative">

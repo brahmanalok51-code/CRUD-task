@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose")
+require("./dbConnect")
 
-const taskSch = new mongoose.Schema(
+const taskSch = mongoose.Schema(
   {
     title: {
       type: String,
@@ -24,4 +25,4 @@ const taskSch = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Task", taskSch);
+module.exports = mongoose.model("Task", taskSch);

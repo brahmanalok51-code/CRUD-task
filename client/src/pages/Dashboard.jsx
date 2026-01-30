@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaEdit, FaTrash, FaCalendarAlt, FaTasks } from "react-icons/fa";
 
 const statuses = [
   { name: "Todo", color: "border-blue-500", badge: "bg-blue-100 text-blue-600" },
@@ -7,32 +8,35 @@ const statuses = [
   { name: "Done", color: "border-green-500", badge: "bg-green-100 text-green-600" }
 ];
 
+const initialFormState = {
+  title: "",
+  description: "",
+  status: "Todo",
+  dueDate: ""
+};
+
 export default function TaskDashboard() {
   const [tasks, setTasks] = useState([]);
   const [editId, setEditId] = useState(null);
-
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    status: "Todo",
-    dueDate: ""
-  });
-
-  /* ---------------- API HANDLERS ---------------- */
+  const [form, setForm] = useState(initialFormState);
 
   const getTasks = async () => {
-    const res = await fetch("http://localhost:5000/api/tasks");
+    const res = await fetch("http://localhost:5000/getTask");
     const data = await res.json();
     setTasks(data);
   };
 
   const createTask = async () => {
-    await fetch("http://localhost:5000/create", {
+    const res = await fetch("http://localhost:5000/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form)
     });
-    getTasks();
+
+    if (res.ok) {
+      getTasks();
+      setForm(initialFormState);
+    }
   };
 
   const updateTask = async () => {
@@ -41,21 +45,20 @@ export default function TaskDashboard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form)
     });
+
     setEditId(null);
+    setForm(initialFormState);
     getTasks();
   };
 
   const deleteTask = async (id) => {
-    await fetch(`http://localhost:5000/delete/${id}`, {
-      method: "DELETE"
-    });
+    await fetch(`http://localhost:5000/delete/${id}`, { method: "DELETE" });
     getTasks();
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     editId ? updateTask() : createTask();
-    setForm({ title: "", description: "", status: "Todo", dueDate: "" });
   };
 
   const handleEdit = (task) => {
@@ -68,36 +71,31 @@ export default function TaskDashboard() {
     getTasks();
   }, []);
 
-  /* ---------------- UI ---------------- */
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#eef2ff] via-[#f5f3ff] to-[#faf5ff] px-6 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 px-6 py-12">
 
       
       <motion.div
-        initial={{ opacity: 0, y: -30 }}
+        initial={{ opacity: 0, y: -40 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-10"
+        className="text-center mb-14"
       >
-        <h1 className="text-5xl font-black text-gray-800">Task Dashboard</h1>
-        <p className="text-gray-500 mt-2">Stay productive. Stay focused.</p>
-
-        
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          onClick={getTasks}
-          className="mt-6 px-6 py-2 bg-indigo-500 text-white rounded-lg shadow"
-        >
-          🔄 Get Tasks
-        </motion.button>
+        <h1 className="text-5xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          Task Dashboard
+        </h1>
+        <p className="text-gray-600 mt-3 text-lg">
+          Organize your work. Track your progress.
+        </p>
       </motion.div>
 
-     
       <motion.form
         onSubmit={handleSubmit}
-        className="max-w-4xl mx-auto bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 mb-16"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-4xl mx-auto bg-white/80 backdrop-blur-xl border border-white/40 rounded-3xl shadow-2xl p-10 mb-20"
       >
-        <h3 className="text-xl font-semibold mb-6 text-gray-700">
+        <h3 className="text-2xl font-semibold text-gray-800 mb-8 flex items-center gap-3">
+          <FaTasks />
           {editId ? "Update Task" : "Create New Task"}
         </h3>
 
@@ -109,24 +107,28 @@ export default function TaskDashboard() {
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             required
           />
-          <input
-            type="date"
-            className="input"
-            value={form.dueDate}
-            onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-            required
-          />
+
+          <div className="relative">
+            <FaCalendarAlt className="absolute top-4 left-4 text-gray-400" />
+            <input
+              type="date"
+              className="input pl-11"
+              value={form.dueDate}
+              onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+              required
+            />
+          </div>
         </div>
 
         <textarea
           className="input mt-6"
-          placeholder="Describe task"
+          placeholder="Describe your task in detail..."
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           required
         />
 
-        <div className="flex gap-6 mt-6 items-center">
+        <div className="flex flex-wrap gap-6 mt-8 items-center">
           <select
             className="input md:w-1/3"
             value={form.status}
@@ -139,7 +141,8 @@ export default function TaskDashboard() {
 
           <motion.button
             whileHover={{ scale: 1.05 }}
-            className={`px-8 py-3 text-white rounded-xl shadow-lg ${
+            whileTap={{ scale: 0.95 }}
+            className={`px-10 py-3 text-white text-lg font-semibold rounded-xl shadow-lg ${
               editId
                 ? "bg-gradient-to-r from-yellow-500 to-orange-500"
                 : "bg-gradient-to-r from-indigo-600 to-purple-600"
@@ -153,10 +156,13 @@ export default function TaskDashboard() {
      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-7xl mx-auto">
         {statuses.map(status => (
-          <div key={status.name} className="bg-white/60 rounded-3xl p-6 shadow-xl">
-            <div className="flex justify-between mb-5">
-              <h2 className="font-bold text-gray-700">{status.name}</h2>
-              <span className={`px-3 py-1 text-xs rounded-full ${status.badge}`}>
+          <div
+            key={status.name}
+            className="bg-white/70 backdrop-blur-xl rounded-3xl p-6 shadow-xl"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-bold text-gray-700 text-lg">{status.name}</h2>
+              <span className={`px-4 py-1 text-sm rounded-full ${status.badge}`}>
                 {tasks.filter(t => t.status === status.name).length}
               </span>
             </div>
@@ -167,30 +173,41 @@ export default function TaskDashboard() {
                 .map(task => (
                   <motion.div
                     key={task._id}
-                    whileHover={{ scale: 1.03 }}
-                    className={`bg-white p-5 rounded-2xl shadow mb-4 border-l-4 ${status.color}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    whileHover={{ scale: 1.04 }}
+                    className={`bg-white rounded-2xl p-5 mb-4 shadow-md border-t-4 ${status.color}`}
                   >
-                    <h3 className="font-semibold">{task.title}</h3>
-                    <p className="text-sm text-gray-500">{task.description}</p>
+                    <h3 className="font-semibold text-gray-800 text-lg">
+                      {task.title}
+                    </h3>
 
-                    <div className="flex justify-between items-center mt-4">
-                      <span className="text-xs text-gray-400">
-                         {task.dueDate}
+                    <p className="text-sm text-gray-500 mt-1">
+                      {task.description}
+                    </p>
+
+                    <div className="flex justify-between items-center mt-5">
+                      <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-500">
+                        📅 {task.dueDate}
                       </span>
 
-                      <div className="flex gap-2">
-                        <button
+                      <div className="flex gap-3">
+                        <motion.button
+                          whileHover={{ scale: 1.2 }}
                           onClick={() => handleEdit(task)}
-                          className="text-yellow-500"
+                          className="p-2 rounded-full bg-yellow-100 text-yellow-600"
                         >
-                          
-                        </button>
-                        <button
+                          <FaEdit size={14} />
+                        </motion.button>
+
+                        <motion.button
+                          whileHover={{ scale: 1.2 }}
                           onClick={() => deleteTask(task._id)}
-                          className="text-red-500"
+                          className="p-2 rounded-full bg-red-100 text-red-600"
                         >
-                          
-                        </button>
+                          <FaTrash size={14} />
+                        </motion.button>
                       </div>
                     </div>
                   </motion.div>
@@ -200,6 +217,7 @@ export default function TaskDashboard() {
         ))}
       </div>
 
+     
       <style>
         {`
           .input {
@@ -208,6 +226,7 @@ export default function TaskDashboard() {
             border-radius: 1rem;
             border: 1px solid #e5e7eb;
             outline: none;
+            background: white;
           }
           .input:focus {
             border-color: #6366f1;

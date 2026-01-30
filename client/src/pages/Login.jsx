@@ -42,6 +42,7 @@ const Login = () => {
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Login failed");
+      console.log(err.message);
     } finally {
       setLoading(false);
     }

@@ -1,40 +1,54 @@
 
-const User = require("../schemas/registerSchema");
-require('../schemas/userConnect')
-const Task = require("../schemas/taskSchema")
+const User = require("../models/registerSchema");
+const Task = require("../models/taskSchema")
+require("../models/dbConnect")
 
 
-// controller for user register...
+// Register user
 exports.register = async (req, res) => {
-    try {
-        if (!req.body) {
-            return res.status(400).json({ message: "Request body is missing" })
-        }
+  try {
+    const { name, email, password } = req.body;
 
-        const existingUser = await User.findOne({ email: req.body.email })
-        if (existingUser) {
-            return res.status(400).json({ message: "User already exists" })
-        }
-        const userReg = new User(req.body)
-        const savedUser = await userReg.save()
-
-        res.status(201).json({
-            success: true,
-            data: savedUser
-        })
-
-    } catch (e) {
-        res.status(500).json({
-            success: false,
-            message: e.message
-        })
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
     }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(409).json({
+        message: "Email already registered",
+      });
+    }
+
+    const user = new User({
+      name,
+      email,
+      password, 
+    });
+
+    await user.save();
+
+    res.status(201).json({
+      message: "User registered successfully",
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Registration failed",
+    });
   }
+};
+
+
+
 
 // controller for user login...
 exports.login = async (req,res)=>{
     try{
-        const user = await User.findByCredentials(
+        const user = await User.findByCredentials( //yha hmne findByCredentials() ko call kiya aur argument me email aur password dal diye..
             req.body.email, 
             req.body.password
         );
