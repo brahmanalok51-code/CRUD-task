@@ -90,15 +90,7 @@ export default function TaskDashboard() {
         <p className="text-gray-600 mt-3 text-lg">Manage smarter. Work faster.</p>
       </motion.div>
 
-      <div className="max-w-4xl mx-auto mb-10 relative">
-        <FaSearch className="absolute left-4 top-4 text-gray-400" />
-        <input
-          placeholder="Search tasks..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-11 pr-4 py-3 rounded-2xl border bg-white shadow-lg focus:ring-2 focus:ring-indigo-400"
-        />
-      </div>
+   
 
       <motion.form
         onSubmit={handleSubmit}
@@ -113,7 +105,6 @@ export default function TaskDashboard() {
             onChange={(e) => setForm({ ...form, title: e.target.value })} required />
 
           <div className="relative">
-            <FaCalendarAlt className="absolute top-4 left-4 text-gray-400" />
             <input type="date" className="input pl-11" value={form.dueDate}
               onChange={(e) => setForm({ ...form, dueDate: e.target.value })} required />
           </div>

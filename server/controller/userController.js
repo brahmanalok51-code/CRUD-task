@@ -4,7 +4,7 @@ const Task = require("../models/taskSchema")
 require("../models/dbConnect")
 
 
-// Register user
+// Register user 
 exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
